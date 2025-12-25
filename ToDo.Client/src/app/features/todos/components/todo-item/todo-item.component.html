@@ -1,26 +1,33 @@
-<div class="todo-item" [class.completed]="todo.isCompleted" [class.priority-high]="todo.priority === 'high'">
-      <input 
-        type="checkbox" 
-        [checked]="todo.isCompleted"
-        (change)="onToggle()"
-        [id]="'todo-' + todo.id"
-        class="todo-checkbox"
-      />
-      <label [for]="'todo-' + todo.id" class="todo-content">
-        <span class="todo-title">{{ todo.title }}</span>
-        @if (todo.priority === 'high') {
-          <span class="priority-badge">High Priority</span>
-        }
-        @if (todo.category) {
-          <span class="category-badge">{{ todo.category }}</span>
-        }
-      </label>
-      <button 
-        (click)="onDelete()" 
-        class="delete-btn"
-        aria-label="Delete todo"
-        title="Delete"
-      >
-        ✕
-      </button>
+<div class="todo-card" 
+     [class.completed]="todo.isCompleted" 
+     [class.high-priority]="todo.priority === 'high'"
+     [class.medium-priority]="todo.priority === 'medium'"
+     [class.low-priority]="todo.priority === 'low'">
+  
+  <div class="drag-handle" cdkDragHandle>⋮⋮</div>
+
+  <label class="custom-checkbox">
+    <input 
+      type="checkbox" 
+      [checked]="todo.isCompleted" 
+      (change)="onToggle()" 
+    />
+    <span class="checkmark"></span>
+  </label>
+
+  <div class="todo-content">
+    <span class="todo-text">{{ todo.title }}</span>
+    <div class="badge-row">
+      @if (todo.priority === 'high') {
+        <span class="badge high">HIGH PRIORITY</span>
+      }
+      @if (todo.category) {
+        <span class="badge category">{{ todo.category | uppercase }}</span>
+      }
     </div>
+  </div>
+
+  <button (click)="onDelete()" class="delete-btn" aria-label="Delete">
+    <span class="material-symbols-outlined">delete</span>
+  </button>
+</div>

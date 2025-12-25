@@ -1,30 +1,364 @@
-/* You can add global styles to this file, and also import other style files */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* 1. VARIABLES & BASE SETUP */
+:root {
+  --glass-bg: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.15);
+  --text-main: #ffffff;
+  --accent-blue: #60a5fa;
+  --high-priority: #f87171;
+  --med-priority: #fbbf24;
+  --low-priority: #34d399;
+  --feature-tag: #818cf8;
+  --dark-hole: rgba(0, 0, 0, 0.2);
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: radial-gradient(at top left, #4338ca, #1e1b4b);
   min-height: 100vh;
-  color: #333;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Inter', sans-serif;
+  color: var(--text-main);
 }
 
-::-webkit-scrollbar {
-  width: 8px;
+/* 2. CONTAINER SETUP */
+.glass-container {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  padding: 40px;
+  width: 90%;
+  max-width: 750px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
 }
 
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
+/* 3. HEADER & ACTION BUTTONS */
+.todo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
 }
 
-::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 4px;
+.header-actions {
+  display: flex;
+  gap: 12px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #555;
+.icon-btn {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid var(--glass-border) !important;
+  color: white !important;
+  padding: 10px;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.icon-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* 4. STATS DASHBOARD */
+.stats-dashboard {
+  display: flex;
+  justify-content: space-around;
+  background: var(--dark-hole);
+  padding: 20px;
+  border-radius: 20px;
+  margin-bottom: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.stat-item { text-align: center; }
+
+.progress-circle {
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  border: 3px solid var(--glass-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  margin: 0 auto 8px;
+}
+
+.progress-main {
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 15px rgba(96, 165, 250, 0.3);
+}
+
+/* 5. INPUT & ADD SECTION */
+.input-group {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 10px 16px;
+  margin-bottom: 25px;
+  gap: 12px;
+}
+
+.input-group input {
+  flex: 1;
+  background: transparent !important;
+  border: none !important;
+  color: white;
+  font-size: 16px;
+  outline: none;
+}
+
+.input-group input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.priority-select-mini {
+  background: var(--dark-hole);
+  color: white;
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  padding: 4px 8px;
+  cursor: pointer;
+  outline: none;
+}
+
+.priority-select-mini option {
+  background: #1e1b4b; /* Match body gradient dark color */
+  color: white;
+}
+
+.add-btn {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border: 1px solid var(--glass-border) !important;
+  color: white !important;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s;
+}
+
+.add-btn:hover:not(:disabled) {
+  background: white !important;
+  color: #1e1b4b !important;
+}
+
+/* 6. SEARCH & FILTERS */
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background: var(--dark-hole);
+  border-radius: 50px;
+  padding: 4px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.search-bar input {
+  background: transparent !important;
+  border: none !important;
+  color: white;
+  padding: 8px;
+  outline: none;
+  width: 160px;
+}
+
+.chip {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  color: rgba(255, 255, 255, 0.7);
+  padding: 8px 18px;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.chip.active {
+  background: var(--accent-blue);
+  color: white;
+  box-shadow: 0 0 20px rgba(96, 165, 250, 0.4);
+  border-color: var(--accent-blue);
+}
+
+/* 7. TODO CARDS (UPDATED FOR ROW ALIGNMENT) */
+.todo-card {
+  background: var(--glass-bg);
+  margin-bottom: 12px;
+  padding: 12px 20px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-left: 4px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.todo-card:hover {
+  transform: scale(1.01);
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.todo-card.high-priority { border-left-color: var(--high-priority); }
+.todo-card.medium-priority { border-left-color: var(--med-priority); }
+.todo-card.low-priority { border-left-color: var(--low-priority); }
+
+.drag-handle {
+  margin-right: 15px;
+  opacity: 0.3;
+  cursor: grab;
+  font-size: 18px;
+  user-select: none;
+}
+
+/* Content wrapper to keep text and badges in a line */
+.todo-content {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 15px;
+  margin-left: 10px;
+}
+
+.todo-text {
+  font-size: 15px;
+  color: white;
+  font-weight: 500;
+}
+
+.todo-card.completed .todo-text {
+  text-decoration: line-through;
+  opacity: 0.5;
+}
+
+/* Badge row inside the content wrapper */
+.badge-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.badge {
+  font-size: 10px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+}
+
+.badge.high {
+  background: rgba(248, 113, 113, 0.2);
+  color: var(--high-priority);
+}
+
+/* Updated Delete Button */
+.delete-btn {
+  background: rgba(248, 113, 113, 0.1) !important;
+  border: 1px solid rgba(248, 113, 113, 0.2) !important;
+  color: var(--high-priority) !important;
+  padding: 8px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.delete-btn:hover {
+  background: var(--high-priority) !important;
+  color: white !important;
+  box-shadow: 0 0 15px rgba(248, 113, 113, 0.4);
+}
+
+/* Hide the default checkbox */
+.custom-checkbox {
+  position: relative;
+  display: block;
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.custom-checkbox input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+/* Create a custom circular checkmark */
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 22px;
+  width: 22px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-radius: 50%; /* Makes it a circle */
+  transition: all 0.2s ease-in-out;
+}
+
+/* Hover effect */
+.custom-checkbox:hover input ~ .checkmark {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+/* When checked: Add color and glow */
+.custom-checkbox input:checked ~ .checkmark {
+  background-color: #10b981; /* Success Green */
+  border-color: #10b981;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+}
+
+/* Create the checkmark indicator (the white L shape) */
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the checkmark when checked */
+.custom-checkbox input:checked ~ .checkmark:after {
+  display: block;
+}
+
+/* Style the checkmark indicator */
+.checkmark:after {
+  left: 7px;
+  top: 3px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
 }
