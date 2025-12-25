@@ -402,3 +402,8 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Angular cache
+.angular/
+dist/
+node_modules/

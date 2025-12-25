@@ -1,0 +1,150 @@
+<div class="container" [class.dark-mode]="darkMode()">
+  <header class="header">
+    <h1>✨ Advanced Todo List</h1>
+    <div class="header-actions">
+      <button (click)="toggleDarkMode()" class="icon-btn" [title]="darkMode() ? 'Light Mode' : 'Dark Mode'">
+        {{ darkMode() ? '☀️' : '🌙' }}
+      </button>
+      <button (click)="showShortcuts()" class="icon-btn" title="Keyboard Shortcuts (?)">
+        ⌨️
+      </button>
+      <button 
+        (click)="undo()" 
+        [disabled]="!undoService.canUndo()"
+        class="icon-btn"
+        title="Undo (Ctrl+Z)"
+      >
+        ↶
+      </button>
+      <button 
+        (click)="redo()" 
+        [disabled]="!undoService.canRedo()"
+        class="icon-btn"
+        title="Redo (Ctrl+Y)"
+      >
+        ↷
+      </button>
+    </div>
+  </header>
+
+  @if (shortcutsVisible()) {
+    <div class="shortcuts-modal" (click)="shortcutsVisible.set(false)">
+      <div class="shortcuts-content" (click)="$event.stopPropagation()">
+        <h3>⌨️ Keyboard Shortcuts</h3>
+        <div class="shortcut-list">
+          <div class="shortcut-item">
+            <div><kbd>Ctrl</kbd> + <kbd>N</kbd></div>
+            <span>New Todo</span>
+          </div>
+          <div class="shortcut-item">
+            <div><kbd>Ctrl</kbd> + <kbd>Z</kbd></div>
+            <span>Undo</span>
+          </div>
+          <div class="shortcut-item">
+            <div><kbd>Ctrl</kbd> + <kbd>Y</kbd></div>
+            <span>Redo</span>
+          </div>
+          <div class="shortcut-item">
+            <div><kbd>Ctrl</kbd> + <kbd>F</kbd></div>
+            <span>Focus Search</span>
+          </div>
+          <div class="shortcut-item">
+            <div><kbd>?</kbd></div>
+            <span>Show Shortcuts</span>
+          </div>
+        </div>
+        <button (click)="shortcutsVisible.set(false)" class="close-btn">Close</button>
+      </div>
+    </div>
+  }
+
+  <div class="controls">
+    <div class="search-box">
+      <input 
+        #searchInput
+        type="text" 
+        [(ngModel)]="searchTerm"
+        placeholder="🔍 Search todos..."
+        class="search-input"
+      />
+    </div>
+
+    <div class="filters">
+      @for (filter of filters; track filter) {
+        <button 
+          (click)="activeFilter.set(filter)"
+          [class.active]="activeFilter() === filter"
+          class="filter-btn"
+        >
+          {{ filter }}
+        </button>
+      }
+    </div>
+
+    <div class="add-todo">
+      <input 
+        type="text" 
+        [(ngModel)]="newTodoTitle"
+        (keyup.enter)="addTodo()"
+        placeholder="What needs to be done?"
+        class="todo-input"
+        [disabled]="isLoading()"
+      />
+      <select [(ngModel)]="newTodoPriority" class="priority-select" [disabled]="isLoading()">
+        <option value="low">Low</option>
+        <option value="medium">Medium</option>
+        <option value="high">High</option>
+      </select>
+      <button 
+        (click)="addTodo()" 
+        class="add-btn"
+        [disabled]="!newTodoTitle.trim() || isLoading()"
+      >
+        ➕ Add
+      </button>
+    </div>
+  </div>
+
+  <app-todo-stats />
+
+  @if (error()) {
+    <div class="error-message">
+      {{ error() }}
+      <button (click)="error.set(null)" class="close-error">×</button>
+    </div>
+  }
+
+  @if (isLoading()) {
+    <div class="loading">
+      <div class="spinner"></div>
+      Loading...
+    </div>
+  }
+
+  <div 
+    class="todos-container"
+    cdkDropList
+    (cdkDropListDropped)="onDrop($event)"
+  >
+    @if (filteredTodos().length === 0 && !isLoading()) {
+      <div class="empty-state">
+        <div class="empty-icon">📝</div>
+        <p>{{ getEmptyMessage() }}</p>
+      </div>
+    } @else {
+      @for (todo of filteredTodos(); track todo.id) {
+        <app-todo-item 
+          [todo]="todo"
+          (toggle)="toggleTodo($event)"
+          (delete)="deleteTodo($event)"
+          cdkDrag
+        />
+      }
+    }
+  </div>
+
+  <footer class="footer">
+    <span>Made with ❤️ using Angular 18 & .NET 9</span>
+    <span>Drag to reorder • Press ? for shortcuts</span>
+  </footer>
+</div>
