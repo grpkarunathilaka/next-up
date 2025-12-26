@@ -11,10 +11,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ToDo APP.ApiService\ToDo APP.ApiService.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Aspire.Hosting.AppHost" Version="9.3.1" />
   </ItemGroup>
 

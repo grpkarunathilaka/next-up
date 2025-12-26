@@ -2,12 +2,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36327.8
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ToDo APP.AppHost", "ToDo APP.AppHost\ToDo APP.AppHost.csproj", "{11B6089D-138E-4993-B836-31B29CBAB611}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ToDo APP.ServiceDefaults", "ToDo APP.ServiceDefaults\ToDo APP.ServiceDefaults.csproj", "{D0636804-47D7-2629-AEEB-51CE8F94A3A0}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ToDo APP.ApiService", "ToDo APP.ApiService\ToDo APP.ApiService.csproj", "{7D1FE25B-6B36-FA5F-B996-8C367C738726}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Todo.Api", "ToDo.API\Todo.Api.csproj", "{61F80816-6E1E-CDC2-2695-5F078E991124}"
 EndProject
 Global
@@ -16,18 +10,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{11B6089D-138E-4993-B836-31B29CBAB611}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{11B6089D-138E-4993-B836-31B29CBAB611}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{11B6089D-138E-4993-B836-31B29CBAB611}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{11B6089D-138E-4993-B836-31B29CBAB611}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D0636804-47D7-2629-AEEB-51CE8F94A3A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D0636804-47D7-2629-AEEB-51CE8F94A3A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D0636804-47D7-2629-AEEB-51CE8F94A3A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D0636804-47D7-2629-AEEB-51CE8F94A3A0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7D1FE25B-6B36-FA5F-B996-8C367C738726}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7D1FE25B-6B36-FA5F-B996-8C367C738726}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7D1FE25B-6B36-FA5F-B996-8C367C738726}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7D1FE25B-6B36-FA5F-B996-8C367C738726}.Release|Any CPU.Build.0 = Release|Any CPU
 		{61F80816-6E1E-CDC2-2695-5F078E991124}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{61F80816-6E1E-CDC2-2695-5F078E991124}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{61F80816-6E1E-CDC2-2695-5F078E991124}.Release|Any CPU.ActiveCfg = Release|Any CPU
