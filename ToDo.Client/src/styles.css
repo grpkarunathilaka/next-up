@@ -278,7 +278,7 @@ body {
 .delete-btn {
   background: rgba(248, 113, 113, 0.1) !important;
   border: 1px solid rgba(248, 113, 113, 0.2) !important;
-  color: var(--high-priority) !important;
+  color: #998585 !important;
   padding: 8px;
   border-radius: 10px;
   cursor: pointer;
