@@ -18,7 +18,7 @@ jobs:
           dotnet-version: '9.x'
 
       - name: dotnet publish  
-        run: dotnet publish ToDo.API/Todo.Api.csproj -c Release -o ./publish-folder
+        run: dotnet publish ToDo.API/Todo.Api.csproj -c Release -o ./publish-folder --no-self-contained
         
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -53,4 +53,5 @@ jobs:
           app-name: 'todo-api-ranga-6741'
           # Pointing exactly to the folder where the artifact was downloaded
           package: ./ready-to-deploy
+
 
