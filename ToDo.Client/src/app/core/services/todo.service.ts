@@ -1,6 +1,6 @@
 import { Injectable, inject, computed, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap, catchError, of } from 'rxjs';
+import { Observable, BehaviorSubject, tap, catchError, of, throwError } from 'rxjs';
 import { Todo, CreateTodoDto, TodoStats } from '../models/todo.model';
 import { environment } from '../../../environments/environment';
 
@@ -43,12 +43,19 @@ export class TodoService {
   }
 
   createTodo(dto: CreateTodoDto): Observable<Todo> {
-    return this.http.post<Todo>(this.apiUrl, dto).pipe(
-      tap(newTodo => {
-        const current = this.todosSubject.value;
-        this.todosSubject.next([...current, newTodo]);
-      })
-    );
+        return this.http.post<Todo>(this.apiUrl, dto).pipe(
+          tap(newTodo => {
+            console.log('TodoService: HTTP POST successful, response: ', newTodo);
+            const current = this.todosSubject.value;
+            const updatedTodos = [...current, newTodo];
+            this.todosSubject.next(updatedTodos);
+            console.log('TodoService: New todo added, todosSubject updated:', updatedTodos);
+          }),
+          catchError(err => {
+            console.error('TodoService: HTTP POST failed, error:', err);
+            return throwError(() => err); // Re-throw the error for the component to handle
+          })
+        );
   }
 
   updateTodo(id: string, updates: Partial<Todo>): Observable<Todo> {

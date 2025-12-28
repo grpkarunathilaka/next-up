@@ -25,6 +25,7 @@ export class TodoListComponent implements OnInit {
   readonly todoService = inject(TodoService);
   readonly undoService = inject(UndoRedoService<Todo[]>);
   readonly keyboardService = inject(KeyboardShortcutService);
+
   
   // Form state
   newTodoTitle = '';
@@ -37,13 +38,16 @@ export class TodoListComponent implements OnInit {
   darkMode = signal(false);
   shortcutsVisible = signal(false);
   
-  // Filter state
+  // Placeholder for filter state, will be re-introduced later
   activeFilter = signal<string>('All');
   filters = ['All', 'Active', 'Completed', 'High Priority'];
 
+  // Plain signal for todos list (for debugging reactivity)
+  todosList = signal<Todo[]>([]);
+
   // Computed filtered todos based on search and active filter
   filteredTodos = computed(() => {
-    const todos = this.todoService.currentTodos;
+    const todos = this.todosList(); // Use the plain signal as source
     const filter = this.activeFilter();
     const search = this.searchTerm.toLowerCase();
 
@@ -69,9 +73,33 @@ export class TodoListComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.loadTodos();
+    // Subscribe to the todoService's todos$ observable to update the local signal
+    this.todoService.todos$.subscribe(todos => {
+      this.todosList.set(todos);
+      this.undoService.saveState(todos); // Also update undo state here
+    });
+
+    // Initial load, which will trigger the subscription above
+    this.loadTodos(); 
     this.setupKeyboardShortcuts();
     this.loadDarkModePreference();
+  }
+
+  loadTodos(): void {
+    this.isLoading.set(true);
+    this.error.set(null);
+    
+    // The subscription in ngOnInit will handle updating todosList
+    this.todoService.loadTodos().subscribe({
+      next: () => { // No need to pass todos here, subscription handles it
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        this.error.set('Failed to load todos. Please try again.');
+        this.isLoading.set(false);
+        console.error('Load error:', err);
+      }
+    });
   }
 
   setupKeyboardShortcuts(): void {
@@ -127,22 +155,7 @@ export class TodoListComponent implements OnInit {
     this.shortcutsVisible.set(true);
   }
 
-  loadTodos(): void {
-    this.isLoading.set(true);
-    this.error.set(null);
-    
-    this.todoService.loadTodos().subscribe({
-      next: (todos) => {
-        this.isLoading.set(false);
-        this.undoService.saveState(todos);
-      },
-      error: (err) => {
-        this.error.set('Failed to load todos. Please try again.');
-        this.isLoading.set(false);
-        console.error('Load error:', err);
-      }
-    });
-  }
+
 
   addTodo(): void {
     const title = this.newTodoTitle.trim();
@@ -161,6 +174,7 @@ export class TodoListComponent implements OnInit {
         this.newTodoPriority = 'medium';
         this.isLoading.set(false);
         this.undoService.saveState(this.todoService.currentTodos);
+
       },
       error: (err) => {
         this.error.set('Failed to add todo.');
@@ -198,7 +212,7 @@ export class TodoListComponent implements OnInit {
   }
 
   onDrop(event: CdkDragDrop<Todo[]>): void {
-    const todos = [...this.filteredTodos()];
+    const todos = [...this.todosList()];
     moveItemInArray(todos, event.previousIndex, event.currentIndex);
     this.todoService.reorderTodos(todos);
     this.undoService.saveState(todos);
