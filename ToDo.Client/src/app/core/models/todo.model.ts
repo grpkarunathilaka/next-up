@@ -2,16 +2,13 @@ export interface Todo {
   id: string;
   title: string;
   isCompleted: boolean;
-  createdAt: Date;
-  priority: 'low' | 'medium' | 'high';
-  category?: string;
-  dueDate?: Date;
-  tags: string[];
+  position: number;
+  priority: string;
 }
 
 export interface CreateTodoDto {
   title: string;
-  priority?: 'low' | 'medium' | 'high';
+  priority: string;
   category?: string;
   dueDate?: Date;
   tags?: string[];
@@ -22,4 +19,12 @@ export interface TodoStats {
   completed: number;
   pending: number;
   completionRate: number;
+  byPriority: { [key: string]: number };
+  byCategory: { [key: string]: number };
+  dueToday: number;
+  overdue: number;
+}
+
+export interface ReorderTodosDto {
+  orderedIds: string[];
 }

@@ -3,11 +3,11 @@ using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Serilog;
-using TodoApi.Hubs;
 using TodoApi.Middleware;
-using TodoApi.Models;
-using TodoApi.Repositories;
-using TodoApi.Services;
+using ToDo.Application;
+using TodoApp.Domain.Interfaces;
+using TodoApp.Infrastructure.Persistence;
+using TodoApi.Models; 
 
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
@@ -39,8 +39,8 @@ builder.Services.AddApiVersioning(options =>
 });
 
 // FluentValidation
-builder.Services.AddFluentValidationAutoValidation();
-builder.Services.AddValidatorsFromAssemblyContaining<CreateTodoDtoValidator>();
+        builder.Services.AddFluentValidationAutoValidation();
+        builder.Services.AddValidatorsFromAssemblyContaining<CreateTodoDtoValidator>();
 
 // CORS
 builder.Services.AddCors(options =>
@@ -58,15 +58,16 @@ builder.Services.AddCors(options =>
 builder.Services.AddSignalR();
 
 // Memory Cache
-builder.Services.AddMemoryCache();
-builder.Services.AddSingleton<ICacheService, MemoryCacheService>();
+//builder.Services.AddMemoryCache();
+//builder.Services.AddSingleton<ICacheService, MemoryCacheService>();
 
 // Health Checks
 builder.Services.AddHealthChecks();
 
 // Application Services
+builder.Services.AddApplication();
 builder.Services.AddSingleton<ITodoRepository, InMemoryTodoRepository>();
-builder.Services.AddScoped<ITodoService, TodoService>();
+//builder.Services.AddScoped<ITodoService, TodoService>();
 
 var app = builder.Build();
 
@@ -86,7 +87,7 @@ app.UseHttpsRedirection();
 app.UseCors("AllowAngularApp");
 app.UseAuthorization();
 app.MapControllers();
-app.MapHub<TodoHub>("/todohub");
+//app.MapHub<TodoHub>("/todohub");
 app.MapHealthChecks("/health");
 
 app.Run();

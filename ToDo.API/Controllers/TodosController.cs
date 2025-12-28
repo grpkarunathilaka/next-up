@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using ToDo.Application.Todos.Queries;
+using MediatR;
+using Microsoft.AspNetCore.Hosting.Server;
+using Microsoft.AspNetCore.Mvc;
+using ToDo.Application.Todos.Commands;
 using TodoApi.Models;
-using TodoApi.Services;
-using Microsoft.AspNetCore.RateLimiting;
 
-namespace TodoApi.Controllers;
+namespace WebApi.Controllers;
 
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
@@ -12,140 +14,86 @@ namespace TodoApi.Controllers;
 [Produces("application/json")]
 public class TodosController : ControllerBase
 {
-    private readonly ITodoService _todoService;
-    private readonly ILogger<TodosController> _logger;
+    private readonly ISender _mediator;
 
-    public TodosController(ITodoService todoService, ILogger<TodosController> logger)
+    public TodosController(ISender mediator)
     {
-        _todoService = todoService;
-        _logger = logger;
+        _mediator = mediator;
     }
 
-    /// <summary>
-    /// Gets all todos
-    /// </summary>
+    // --- Version 1.0 & 2.0 Shared Endpoints ---
+
     [HttpGet]
     [MapToApiVersion("1.0")]
     [MapToApiVersion("2.0")]
-    [ProducesResponseType(typeof(IEnumerable<Todo>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<Todo>>> GetAll()
+    public async Task<ActionResult<IEnumerable<TodoDto>>> GetAll()
     {
-        var todos = await _todoService.GetAllTodosAsync();
-        return Ok(todos);
-    }
-
-    /// <summary>
-    /// Gets todo statistics (v2 only)
-    /// </summary>
-    [HttpGet("statistics")]
-    [MapToApiVersion("2.0")]
-    [ProducesResponseType(typeof(TodoStatistics), StatusCodes.Status200OK)]
-    public async Task<ActionResult<TodoStatistics>> GetStatistics()
-    {
-        var stats = await _todoService.GetStatisticsAsync();
-        return Ok(stats);
-    }
-
-    /// <summary>
-    /// Search todos (v2 only)
-    /// </summary>
-    [HttpGet("search")]
-    [MapToApiVersion("2.0")]
-    [ProducesResponseType(typeof(IEnumerable<Todo>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<Todo>>> Search([FromQuery] string query)
-    {
-        if (string.IsNullOrWhiteSpace(query))
-            return BadRequest(new { Message = "Query parameter is required" });
-
-        var results = await _todoService.SearchTodosAsync(query);
-        return Ok(results);
-    }
-
-    /// <summary>
-    /// Reorder todos (v2 only)
-    /// </summary>
-    [HttpPost("reorder")]
-    [MapToApiVersion("2.0")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> Reorder([FromBody] List<string> orderedIds)
-    {
-        await _todoService.ReorderTodosAsync(orderedIds);
-        return Ok();
+        return Ok(await _mediator.Send(new GetAllTodosQuery()));
     }
 
     [HttpGet("{id}")]
     [MapToApiVersion("1.0")]
     [MapToApiVersion("2.0")]
-    [ProducesResponseType(typeof(Todo), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<Todo>> GetById(string id)
+    public async Task<ActionResult<TodoDto>> GetById(string id)
     {
-        var todo = await _todoService.GetTodoByIdAsync(id);
-
-        if (todo == null)
-        {
-            _logger.LogWarning("Todo with id {TodoId} not found", id);
-            return NotFound(new { Message = $"Todo with id '{id}' not found" });
-        }
-
-        return Ok(todo);
+        var result = await _mediator.Send(new GetTodoByIdQuery(id));
+        return result != null ? Ok(result) : NotFound(new { Message = $"Todo with id '{id}' not found" });
     }
 
     [HttpPost]
     [MapToApiVersion("1.0")]
     [MapToApiVersion("2.0")]
-    [ProducesResponseType(typeof(Todo), StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<Todo>> Create(CreateTodoDto createDto)
+    public async Task<ActionResult<TodoDto>> Create(CreateTodoCommand command)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
-        var todo = await _todoService.CreateTodoAsync(createDto);
-
-        return CreatedAtAction(
-            nameof(GetById),
-            new { id = todo.Id, version = "1.0" },
-            todo
-        );
+        var result = await _mediator.Send(command);
+        return CreatedAtAction(nameof(GetById), new { id = result.Id, version = "1.0" }, result);
     }
 
     [HttpPatch("{id}")]
     [MapToApiVersion("1.0")]
     [MapToApiVersion("2.0")]
-    [ProducesResponseType(typeof(Todo), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<Todo>> Update(string id, UpdateTodoDto updateDto)
+    public async Task<ActionResult<TodoDto>> Update(string id, UpdateTodoDto dto)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
+        // Mapping route ID and body DTO to a single Command
+        var command = new UpdateTodoCommand { Id = id, Title = dto.Title, IsCompleted = dto.IsCompleted };
+        var result = await _mediator.Send(command);
 
-        var todo = await _todoService.UpdateTodoAsync(id, updateDto);
-
-        if (todo == null)
-        {
-            _logger.LogWarning("Todo with id {TodoId} not found for update", id);
-            return NotFound(new { Message = $"Todo with id '{id}' not found" });
-        }
-
-        return Ok(todo);
+        return result != null ? Ok(result) : NotFound(new { Message = $"Todo with id '{id}' not found" });
     }
 
     [HttpDelete("{id}")]
     [MapToApiVersion("1.0")]
     [MapToApiVersion("2.0")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(string id)
     {
-        var deleted = await _todoService.DeleteTodoAsync(id);
+        var success = await _mediator.Send(new DeleteTodoCommand(id));
+        return success ? NoContent() : NotFound(new { Message = $"Todo with id '{id}' not found" });
+    }
 
-        if (!deleted)
-        {
-            _logger.LogWarning("Todo with id {TodoId} not found for deletion", id);
-            return NotFound(new { Message = $"Todo with id '{id}' not found" });
-        }
+    // --- Version 2.0 Exclusive Endpoints ---
 
-        return NoContent();
+    [HttpGet("statistics")]
+    [MapToApiVersion("2.0")]
+    public async Task<ActionResult<TodoStatisticsDto>> GetStatistics()
+    {
+        return Ok(await _mediator.Send(new GetTodoStatisticsQuery()));
+    }
+
+    [HttpGet("search")]
+    [MapToApiVersion("2.0")]
+    public async Task<ActionResult<IEnumerable<TodoDto>>> Search([FromQuery] string query)
+    {
+        if (string.IsNullOrWhiteSpace(query))
+            return BadRequest(new { Message = "Query parameter is required" });
+
+        return Ok(await _mediator.Send(new SearchTodosQuery(query)));
+    }
+
+    [HttpPost("reorder")]
+    [MapToApiVersion("2.0")]
+    public async Task<IActionResult> Reorder([FromBody] List<string> orderedIds)
+    {
+        await _mediator.Send(new ReorderTodosCommand(orderedIds));
+        return Ok();
     }
 }
