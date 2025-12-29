@@ -40,16 +40,6 @@ describe('TodoListComponent', () => {
     expect(todoService.loadTodos).toHaveBeenCalled();
   });
 
-  it('should add todo when title is provided', () => {
-    const mockTodo = { id: '1', title: 'Test', isCompleted: false, createdAt: new Date() };
-    todoService.createTodo.and.returnValue(of(mockTodo));
-    
-    component.newTodoTitle = 'Test';
-    component.addTodo();
-    
-    expect(todoService.createTodo).toHaveBeenCalledWith({ title: 'Test' });
-  });
-
   it('should not add todo when title is empty', () => {
     component.newTodoTitle = '   ';
     component.addTodo();

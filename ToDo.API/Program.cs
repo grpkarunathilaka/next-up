@@ -57,17 +57,12 @@ builder.Services.AddCors(options =>
 // SignalR
 builder.Services.AddSignalR();
 
-// Memory Cache
-//builder.Services.AddMemoryCache();
-//builder.Services.AddSingleton<ICacheService, MemoryCacheService>();
-
 // Health Checks
 builder.Services.AddHealthChecks();
 
 // Application Services
 builder.Services.AddApplication();
 builder.Services.AddSingleton<ITodoRepository, InMemoryTodoRepository>();
-//builder.Services.AddScoped<ITodoService, TodoService>();
 
 var app = builder.Build();
 
@@ -87,7 +82,6 @@ app.UseHttpsRedirection();
 app.UseCors("AllowAngularApp");
 app.UseAuthorization();
 app.MapControllers();
-//app.MapHub<TodoHub>("/todohub");
 app.MapHealthChecks("/health");
 
 app.Run();

@@ -6,16 +6,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { TodoService } from '../../../../core/services/todo.service';
-import { UndoRedoService } from '../../../../core/services/undo-redo.service';
-import { KeyboardShortcutService } from '../../../../core/services/keyboard-shortcut.service';
 import { TodoItemComponent } from '../todo-item/todo-item.component';
-import { TodoStatsComponent } from '../todo-stats/todo-stats.component';
 import { Todo } from '../../../../core/models/todo.model';
 
 @Component({
   selector: 'app-todo-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, DragDropModule, TodoItemComponent, TodoStatsComponent],
+  imports: [CommonModule, FormsModule, DragDropModule, TodoItemComponent],
   templateUrl: './todo-list.component.html',
   styleUrls: ['./todo-list.component.css']
 })
@@ -23,9 +20,6 @@ export class TodoListComponent implements OnInit {
   @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
   
   readonly todoService = inject(TodoService);
-  readonly undoService = inject(UndoRedoService<Todo[]>);
-  readonly keyboardService = inject(KeyboardShortcutService);
-
   
   // Form state
   newTodoTitle = '';
@@ -75,14 +69,11 @@ export class TodoListComponent implements OnInit {
   ngOnInit(): void {
     // Subscribe to the todoService's todos$ observable to update the local signal
     this.todoService.todos$.subscribe(todos => {
-      this.todosList.set(todos);
-      this.undoService.saveState(todos); // Also update undo state here
+      this.todosList.set(todos);      
     });
 
     // Initial load, which will trigger the subscription above
-    this.loadTodos(); 
-    this.setupKeyboardShortcuts();
-    this.loadDarkModePreference();
+    this.loadTodos();     
   }
 
   loadTodos(): void {
@@ -100,62 +91,7 @@ export class TodoListComponent implements OnInit {
         console.error('Load error:', err);
       }
     });
-  }
-
-  setupKeyboardShortcuts(): void {
-    this.keyboardService.init();
-    
-    // Ctrl+N - Focus on new todo input
-    this.keyboardService.register(
-      { key: 'n', ctrl: true },
-      () => {
-        const input = document.querySelector<HTMLInputElement>('.todo-input');
-        input?.focus();
-      }
-    );
-
-    // Ctrl+Z - Undo
-    this.keyboardService.register(
-      { key: 'z', ctrl: true },
-      () => this.undo()
-    );
-
-    // Ctrl+Y - Redo
-    this.keyboardService.register(
-      { key: 'y', ctrl: true },
-      () => this.redo()
-    );
-
-    // Ctrl+F - Focus search
-    this.keyboardService.register(
-      { key: 'f', ctrl: true },
-      () => this.searchInput?.nativeElement.focus()
-    );
-
-    // ? - Show shortcuts modal
-    this.keyboardService.register(
-      { key: '?' },
-      () => this.showShortcuts()
-    );
-  }
-
-  loadDarkModePreference(): void {
-    const stored = localStorage.getItem('darkMode');
-    if (stored) {
-      this.darkMode.set(stored === 'true');
-    }
-  }
-
-  toggleDarkMode(): void {
-    this.darkMode.update(v => !v);
-    localStorage.setItem('darkMode', String(this.darkMode()));
-  }
-
-  showShortcuts(): void {
-    this.shortcutsVisible.set(true);
-  }
-
-
+  } 
 
   addTodo(): void {
     const title = this.newTodoTitle.trim();
@@ -172,8 +108,7 @@ export class TodoListComponent implements OnInit {
       next: () => {
         this.newTodoTitle = '';
         this.newTodoPriority = 'medium';
-        this.isLoading.set(false);
-        this.undoService.saveState(this.todoService.currentTodos);
+        this.isLoading.set(false);       
 
       },
       error: (err) => {
@@ -190,7 +125,7 @@ export class TodoListComponent implements OnInit {
 
     this.todoService.updateTodo(id, { isCompleted: !todo.isCompleted }).subscribe({
       next: () => {
-        this.undoService.saveState(this.todoService.currentTodos);
+        
       },
       error: (err) => {
         this.error.set('Failed to update todo.');
@@ -199,38 +134,26 @@ export class TodoListComponent implements OnInit {
     });
   }
 
-  deleteTodo(id: string): void {
-    this.todoService.deleteTodo(id).subscribe({
-      next: () => {
-        this.undoService.saveState(this.todoService.currentTodos);
-      },
-      error: (err) => {
-        this.error.set('Failed to delete todo.');
-        console.error('Delete error:', err);
-      }
-    });
+   deleteTodo(id: string): void {
+    if (confirm('Are you sure you want to delete this todo item?')) {
+      this.todoService.deleteTodo(id).subscribe({
+        next: () => {
+          
+        },
+        error: (err) => {
+          this.error.set('Failed to delete todo.');
+          console.error('Delete error:', err);
+        }
+      });
+    }
   }
 
   onDrop(event: CdkDragDrop<Todo[]>): void {
     const todos = [...this.todosList()];
     moveItemInArray(todos, event.previousIndex, event.currentIndex);
-    this.todoService.reorderTodos(todos);
-    this.undoService.saveState(todos);
+    this.todoService.reorderTodos(todos);    
   }
 
-  undo(): void {
-    const previousState = this.undoService.undo();
-    if (previousState) {
-      this.todoService.reorderTodos(previousState);
-    }
-  }
-
-  redo(): void {
-    const nextState = this.undoService.redo();
-    if (nextState) {
-      this.todoService.reorderTodos(nextState);
-    }
-  }
 
   getEmptyMessage(): string {
     const filter = this.activeFilter();
