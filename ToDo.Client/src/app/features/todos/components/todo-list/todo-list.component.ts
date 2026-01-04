@@ -1,6 +1,4 @@
-// ============================================
-// src/app/features/todos/components/todo-list/todo-list.component.ts
-// ============================================
+
 import { Component, OnInit, inject, signal, computed, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -30,9 +28,8 @@ export class TodoListComponent implements OnInit {
   isLoading = signal(false);
   error = signal<string | null>(null);
   darkMode = signal(false);
-  shortcutsVisible = signal(false);
+  shortcutsVisible = signal(false);  
   
-  // Placeholder for filter state, will be re-introduced later
   activeFilter = signal<string>('All');
   filters = ['All', 'Active', 'Completed', 'High Priority'];
 
@@ -41,7 +38,7 @@ export class TodoListComponent implements OnInit {
 
   // Computed filtered todos based on search and active filter
   filteredTodos = computed(() => {
-    const todos = this.todosList(); // Use the plain signal as source
+    const todos = this.todosList(); 
     const filter = this.activeFilter();
     const search = this.searchTerm.toLowerCase();
 

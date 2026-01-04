@@ -1,39 +1,7 @@
 <div class="glass-container" [class.dark-mode]="darkMode()">
   <header class="todo-header">
-    <h1>✨ Next Up</h1>
-    <!-- <div class="header-actions">
-      <button (click)="toggleDarkMode()" class="icon-btn" [title]="darkMode() ? 'Light Mode' : 'Dark Mode'">
-        <span class="material-symbols-outlined">{{ darkMode() ? 'light_mode' : 'dark_mode' }}</span>
-      </button>
-      <button (click)="showShortcuts()" class="icon-btn" title="Keyboard Shortcuts (?)">
-        <span class="material-symbols-outlined">keyboard</span>
-      </button>
-      <button (click)="undo()" [disabled]="!undoService.canUndo()" class="icon-btn" title="Undo (Ctrl+Z)">
-        <span class="material-symbols-outlined">undo</span>
-      </button>
-    </div> -->
-  </header>
-
-  <!-- @if (shortcutsVisible()) {
-    <div class="shortcuts-modal" (click)="shortcutsVisible.set(false)">
-      <div class="shortcuts-content glass-card" (click)="$event.stopPropagation()">
-        <h3>⌨️ Keyboard Shortcuts</h3>
-        <div class="shortcut-list">
-          <div class="shortcut-item">
-            <div><kbd>Ctrl</kbd> + <kbd>N</kbd></div>
-            <span>New Todo</span>
-          </div>
-          <div class="shortcut-item">
-            <div><kbd>Ctrl</kbd> + <kbd>Z</kbd></div>
-            <span>Undo</span>
-          </div>
-        </div>
-        <button (click)="shortcutsVisible.set(false)" class="close-btn">Close</button>
-      </div>
-    </div>
-  } -->
-
-  <!-- <app-todo-stats /> -->
+    <h1>✨ Next Up</h1>    
+  </header> 
 
   <div class="input-group">
     <div class="priority-dot" [ngClass]="newTodoPriority"></div>
@@ -100,10 +68,5 @@
         </div>
       }
     }
-  </div>
-
-  <footer class="footer">
-    <!-- <span>Made with ❤️ using Angular 18 & .NET 9</span>
-    <span>Drag to reorder • Press ? for shortcuts</span> -->
-  </footer>
+  </div> 
 </div>
